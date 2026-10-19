@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Haras Vacación — Posición Financiera</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #0d1117; --bg2: #161b22; --bg3: #1c2230; --bg4: #21283a;
+  --border: #2d3748; --fg: #e6edf3; --fg2: #8b949e; --fg3: #6e7681;
+  --accent: #58a6ff; --green: #3fb950; --amber: #d29922; --red: #f85149;
+  --teal: #39c5cf; --purple: #bc8cff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px; line-height: 1.5; min-height: 100vh;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: max(0px, env(safe-area-inset-top, 0px)) max(0px, env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Header ── */
+.header {
+  background: linear-gradient(135deg, #1a2744 0%, #0d1e3d 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 18px max(24px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+.logo-box {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #1d6b40, #185fa5);
+  border-radius: 10px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -1px;
+}
+.header-title { font-size: 18px; font-weight: 700; }
+.header-sub { font-size: 12px; color: var(--fg2); margin-top: 1px; }
+.header-right { text-align: right; }
+.date-badge {
+  background: rgba(88,166,255,0.12); border: 1px solid rgba(88,166,255,0.3);
+  color: var(--accent); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px;
+}
+.tc-badge { font-size: 11px; color: var(--fg3); margin-top: 4px; }
+
+/* ── Week selector ── */
+.week-bar {
+  background: var(--bg3); border-bottom: 1px solid var(--border);
+  padding: 10px max(24px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.week-lbl { font-size: 11px; color: var(--fg3); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
+.week-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.wbtn { touch-action: manipulation;
+  background: var(--bg4); border: 1px solid var(--border); color: var(--fg3);
+  padding: 5px 12px; border-radius: 16px; font-size: 12px; font-weight: 500;
+  cursor: pointer; transition: all .15s; font-family: 'SF Mono','Fira Code',monospace;
+}
+.wbtn:hover { border-color: var(--accent); color: var(--fg2); }
+.wbtn.active { background: rgba(88,166,255,0.15); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+
+/* ── Nav tabs ── */
+.nav {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  display: flex; overflow-x: auto; padding: 0 16px; scrollbar-width: none;
+}
+.nav::-webkit-scrollbar { display: none; }
+.nav-tab { background:none; border:none; outline:none; -webkit-appearance:none; appearance:none;
+  padding: 14px 18px; font-size: 13px; font-weight: 500; color: var(--fg3);
+  border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap;
+  transition: color .15s, border-color .15s; user-select: none;
+}
+.nav-tab:hover { color: var(--fg2); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Main ── */
+.main { padding: 24px 0; max-width: 1200px; margin: 0 auto; }
+.sec-title {
+  font-size: 15px; font-weight: 700; color: var(--fg);
+  margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.mb16 { margin-bottom: 16px; }
+
+/* ── Cards ── */
+.card-grid { display: grid; gap: 16px; }
+.cg-2 { grid-template-columns: repeat(2, 1fr); }
+.cg-3 { grid-template-columns: repeat(3, 1fr); }
+.cg-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 900px) { .cg-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .cg-2,.cg-3,.cg-4 { grid-template-columns: 1fr; } }
+
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+.card-title {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--fg3); margin-bottom: 16px;
+}
+
+/* ── KPI ── */
+.kpi { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+.kpi-label { font-size: 11px; color: var(--fg3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+.kpi-val { font-size: 22px; font-weight: 700; line-height: 1; }
+.kpi-val.green { color: var(--green); }
+.kpi-val.amber { color: var(--amber); }
+.kpi-val.red   { color: var(--red); }
+.kpi-val.blue  { color: var(--accent); }
+.kpi-sub { font-size: 11px; color: var(--fg3); margin-top: 6px; }
+.kpi-delta { font-size: 12px; margin-top: 6px; font-weight: 500; }
+.kpi-delta.up { color: var(--green); }
+.kpi-delta.dn { color: var(--red); }
+
+/* ── Data table ── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  padding: 8px 12px; text-align: right; font-size: 11px;
+  color: var(--fg3); font-weight: 600; border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+.data-table th:first-child { text-align: left; }
+.data-table td {
+  padding: 9px 12px; text-align: right; border-bottom: 1px solid rgba(45,55,72,0.5);
+  color: var(--fg2); white-space: nowrap;
+}
+.data-table td:first-child { text-align: left; color: var(--fg); }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr.highlight td { background: rgba(88,166,255,0.06); color: var(--fg); font-weight: 600; }
+.data-table tr.subtotal td { color: var(--fg); font-weight: 600; border-top: 1px solid var(--border); }
+.data-table tr.total td { color: var(--green); font-weight: 700; font-size: 14px; border-top: 2px solid var(--border); }
+.data-table .neg { color: var(--red); }
+.data-table .pos { color: var(--green); }
+.data-table .ind { color: var(--fg3); font-size: 12px; padding-left: 24px; }
+.data-table .warn { color: var(--amber); }
+
+/* ── Charts ── */
+.chart-wrap    { position: relative; height: 220px; }
+.chart-wrap-lg { position: relative; height: 280px; }
+
+/* ── Row layout ── */
+.row { display: flex; gap: 16px; margin-bottom: 16px; }
+.row .card { flex: 1; min-width: 0; }
+.col-35 { flex: 0 0 35%; min-width: 0; }
+.col-40 { flex: 0 0 40%; min-width: 0; }
+.col-55 { flex: 0 0 55%; min-width: 0; }
+.col-60 { flex: 0 0 60%; min-width: 0; }
+@media (max-width: 768px) {
+  .row { flex-direction: column; }
+  .col-35,.col-40,.col-55,.col-60 { flex: none; width: 100%; }
+}
+
+.table-scroll { overflow-x: auto; }
+
+/* ── Badge ── */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.badge-green { background: rgba(63,185,80,0.15);  color: var(--green); }
+.badge-amber { background: rgba(210,153,34,0.15); color: var(--amber); }
+.badge-red   { background: rgba(248,81,73,0.15);  color: var(--red); }
+.badge-blue  { background: rgba(88,166,255,0.12); color: var(--accent); }
+.badge-purple{ background: rgba(188,140,255,0.15);color: var(--purple); }
+
+/* ── Semáforo ── */
+.alert-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
+  background: rgba(255,255,255,.03); border: 1px solid var(--border);
+}
+.alert-row:last-child { margin-bottom: 0; }
+.alert-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot-amber { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.dot-red   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+.alert-label { flex: 1; font-size: 13px; }
+.alert-val { font-size: 13px; font-weight: 600; }
+.alert-threshold { font-size: 11px; color: var(--fg3); margin-left: 6px; }
+
+/* ── Flujo visual ── */
+.flujo-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 15px; border-radius: 8px; margin-bottom: 5px;
+}
+.flujo-row.start   { background: rgba(63,185,80,0.10);  border: 1px solid rgba(63,185,80,0.25); }
+.flujo-row.deduct  { background: rgba(248,81,73,0.07);  border: 1px solid rgba(248,81,73,0.20); }
+.flujo-row.prov    { background: rgba(188,140,255,0.08);border: 1px solid rgba(188,140,255,0.25); }
+.flujo-row.reserve { background: rgba(210,153,34,0.08); border: 1px solid rgba(210,153,34,0.20); }
+.flujo-row.subtot  { background: rgba(63,185,80,0.07);  border: 1px solid rgba(63,185,80,0.20); }
+.flujo-row.result  { background: rgba(88,166,255,0.10); border: 1px solid rgba(88,166,255,0.30); }
+.flujo-row.notice  { background: rgba(210,153,34,0.06); border: 1px solid rgba(210,153,34,0.15); border-radius: 6px; padding: 8px 14px; margin-bottom: 10px; }
+.flujo-icon  { font-size: 15px; width: 26px; text-align: center; flex-shrink: 0; }
+.flujo-label { flex: 1; }
+.flujo-name  { font-size: 13px; font-weight: 500; }
+.flujo-note  { font-size: 11px; color: var(--fg3); margin-top: 1px; }
+.flujo-amt   { text-align: right; }
+.flujo-ars   { font-size: 14px; font-weight: 700; }
+.flujo-usd   { font-size: 11px; color: var(--fg3); margin-top: 1px; }
+.flujo-row.start   .flujo-ars { color: var(--green); }
+.flujo-row.deduct  .flujo-ars { color: var(--red); }
+.flujo-row.prov    .flujo-ars { color: var(--purple); }
+.flujo-row.reserve .flujo-ars { color: var(--amber); }
+.flujo-row.subtot  .flujo-ars { color: var(--green); }
+.flujo-row.result  .flujo-ars { color: var(--accent); }
+.flujo-arrow { text-align: center; color: var(--fg3); font-size: 12px; margin: 1px 0 1px 39px; }
+.notice-text { font-size: 12px; color: var(--amber); }
+
+/* ── Mini bar ── */
+.mini-bar-bg { background: rgba(255,255,255,.06); border-radius: 3px; height: 5px; width: 100%; overflow: hidden; margin-top: 4px; }
+.mini-bar-fill { height: 100%; border-radius: 3px; }
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid var(--border); padding: 16px;
+  text-align: center; color: var(--fg3); font-size: 11px; margin-top: 32px;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-box">HV</div>
+    <div>
+      <div class="header-title">Haras Vacación</div>
+      <div class="header-sub">Dashboard Financiero Semanal</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="date-badge" id="hdrDate">—</div>
+    <div class="tc-badge" id="hdrTC">—</div>
+  </div>
+</div>
+
+<!-- WEEK SELECTOR -->
+<div class="week-bar">
+  <div class="week-lbl">Semana:</div>
+  <div class="week-btns" id="weekBtns"></div>
+</div>
+
+<!-- NAV TABS -->
+<div class="nav">
+  <button class="nav-tab active" onclick="showTab('resumen')">📊 Resumen & KPIs</button>
+  <button class="nav-tab" onclick="showTab('flujo')">💧 Flujo de Caja</button>
+  <button class="nav-tab" onclick="showTab('proveedores')">🏪 Proveedores</button>
+  <button class="nav-tab" onclick="showTab('cartera')">📋 Cuotas & Cartera</button>
+  <button class="nav-tab" onclick="showTab('ratios')">⚖️ Ratios & Alertas</button>
+</div>
+
+<!-- ══════════════════════════ RESUMEN ══════════════════════════ -->
+<div class="main" id="tab-resumen">
+  <div class="sec-title" id="ttlResumen">—</div>
+  <div class="card-grid cg-4 mb16" id="kpiGrid"></div>
+  <div class="row">
+    <div class="card col-60">
+      <div class="card-title">Evolución Patrimonial — Últimas semanas (ARS M)</div>
+      <div class="chart-wrap-lg"><canvas id="chartNeta"></canvas></div>
+    </div>
+    <div class="card col-40">
+      <div class="card-title" id="ttlBalance">Balance</div>
+      <div class="table-scroll"><table class="data-table" id="balanceTable"></table></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="card">
+      <div class="card-title">Disponibilidad & USD — Evolución semanal (ARS M)</div>
+      <div class="chart-wrap"><canvas id="chartDisp"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cartera — Evolución semanal (ARS M)</div>
+      <div class="chart-wrap"><canvas id="chartCartera"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ FLUJO ══════════════════════════ -->
+<div class="main" id="tab-flujo" style="display:none">
+  <div class="sec-title" id="ttlFlujo">—</div>
+  <div class="row">
+    <div class="card col-40">
+      <div class="card-title">Cascada de Liquidez</div>
+      <div id="flujoRows"></div>
+    </div>
+    <div class="card col-60">
+      <div class="card-title">Disp. vs Compromisos — Evolución (ARS M)</div>
+      <div class="chart-wrap-lg"><canvas id="chartFlujo"></canvas></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div class="card-title" id="ttlDetComp">Detalle Compromisos</div>
+        <table class="data-table" id="compTable"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PROVEEDORES ══════════════════════════ -->
+<div class="main" id="tab-proveedores" style="display:none">
+  <div class="sec-title" id="ttlProv">—</div>
+  <div class="card-grid cg-4 mb16" id="provKpis"></div>
+  <div class="row">
+    <div class="card col-60">
+      <div class="card-title">Evolución Cuentas por Pagar — Semanal (ARS M)</div>
+      <div class="chart-wrap-lg"><canvas id="chartProv"></canvas></div>
+    </div>
+    <div class="card col-40">
+      <div class="card-title" id="ttlProvDet">Desglose al cierre</div>
+      <div class="table-scroll"><table class="data-table" id="provDetTable"></table></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="card">
+      <div class="card-title">Histórico Semanal — Cuentas por Pagar (ARS)</div>
+      <div class="table-scroll"><table class="data-table" id="provHistTable"></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ CARTERA ══════════════════════════ -->
+<div class="main" id="tab-cartera" style="display:none">
+  <div class="sec-title" id="ttlCartera">—</div>
+  <div class="card-grid cg-4 mb16" id="carteraKpis"></div>
+  <div class="row">
+    <div class="card col-60">
+      <div class="card-title">Evolución Cartera (ARS M)</div>
+      <div class="chart-wrap-lg"><canvas id="chartCartera2"></canvas></div>
+    </div>
+    <div class="card col-40">
+      <div class="card-title">Composición al cierre de semana</div>
+      <div class="chart-wrap"><canvas id="chartPie"></canvas></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="card">
+      <div class="card-title">Detalle de Cartera a Cobrar</div>
+      <div class="table-scroll"><table class="data-table" id="carteraTable"></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ RATIOS ══════════════════════════ -->
+<div class="main" id="tab-ratios" style="display:none">
+  <div class="sec-title" id="ttlRatios">—</div>
+  <div class="row">
+    <div class="card col-40">
+      <div class="card-title">Semáforo de Indicadores</div>
+      <div id="semaforoRows"></div>
+    </div>
+    <div class="card col-60">
+      <div class="card-title">Ratios Clave — Evolución Semanal</div>
+      <div class="chart-wrap-lg"><canvas id="chartRatios"></canvas></div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <div class="card-title">Tabla de Ratios</div>
+        <div class="table-scroll"><table class="data-table" id="ratiosTable"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer" id="footerTxt">Haras Vacación · Dashboard Financiero Semanal · Uso interno · Confidencial</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════
+const WDATA = [
+  {
+    id:'11/09', date:'11 Sep 2026', tc:1530,
+    activo:1852000000, pasivo:238196244, neta:1613803756,
+    disp:238000000, usd:85000, dispUsdArs:130050000,
+    reserva:65000000, ccss:36000000, iva:22000000, flujoMes:'Octubre',
+    provTotal:238196244, provA:94405662, provB:143790582,
+    cartera:[
+      {rubro:'Remate Yeguas Abril 2026', val:77500000,  warn:false},
+      {rubro:'Remate 2026 — 1° Marzo',   val:540000000, warn:false},
+      {rubro:'Remate 2026 — 2° Junio',   val:216000000, warn:false},
+      {rubro:'Remate 2026 — 3° Sept.',   val:230000000, warn:false},
+      {rubro:'Ventas Particulares',       val:4000000,   warn:false},
+      {rubro:'Servicios',                 val:90000000,  warn:false},
+      {rubro:'Remates 2025',              val:212500000, warn:true},
+    ],
+    ratios:{solvencia:7.78, liquid:1.00, endeud:12.9, cobIVA:3.29, usdPos:85000, r2025pct:15.5}
+  },
+  {
+    id:'18/09', date:'18 Sep 2026', tc:1530,
+    activo:1855000000, pasivo:212648384, neta:1642351616,
+    disp:245000000, usd:89000, dispUsdArs:136170000,
+    reserva:65000000, ccss:36000000, iva:22000000, flujoMes:'Octubre',
+    provTotal:212648384, provA:80586666, provB:132061718,
+    cartera:[
+      {rubro:'Remate Yeguas Abril 2026', val:77500000,  warn:false},
+      {rubro:'Remate 2026 — 1° Marzo',   val:537000000, warn:false},
+      {rubro:'Remate 2026 — 2° Junio',   val:216000000, warn:false},
+      {rubro:'Remate 2026 — 3° Sept.',   val:236000000, warn:false},
+      {rubro:'Ventas Particulares',       val:3800000,   warn:false},
+      {rubro:'Servicios',                 val:91000000,  warn:false},
+      {rubro:'Remates 2025',              val:211700000, warn:true},
+    ],
+    ratios:{solvencia:8.72, liquid:1.15, endeud:11.5, cobIVA:3.34, usdPos:89000, r2025pct:15.4}
+  },
+  {
+    id:'25/09', date:'25 Sep 2026', tc:1530,
+    activo:1860000000, pasivo:178184072, neta:1681815928,
+    disp:252000000, usd:92000, dispUsdArs:140760000,
+    reserva:65000000, ccss:36000000, iva:22000000, flujoMes:'Octubre',
+    provTotal:178184072, provA:63972354, provB:114211718,
+    cartera:[
+      {rubro:'Remate Yeguas Abril 2026', val:77500000,  warn:false},
+      {rubro:'Remate 2026 — 1° Marzo',   val:535000000, warn:false},
+      {rubro:'Remate 2026 — 2° Junio',   val:216000000, warn:false},
+      {rubro:'Remate 2026 — 3° Sept.',   val:238000000, warn:false},
+      {rubro:'Ventas Particulares',       val:3900000,   warn:false},
+      {rubro:'Servicios',                 val:92000000,  warn:false},
+      {rubro:'Remates 2025',              val:215600000, warn:true},
+    ],
+    ratios:{solvencia:10.44, liquid:1.41, endeud:9.6, cobIVA:3.60, usdPos:92000, r2025pct:15.6}
+  },
+  {
+    id:'02/10', date:'2 Oct 2026', tc:1530,
+    activo:2068250035, pasivo:138833386, neta:1929416649,
+    disp:272564121, usd:94000, dispUsdArs:143820000,
+    reserva:65000000, ccss:36000000, iva:22000000, flujoMes:'Octubre',
+    provTotal:138833386, provA:55794304, provB:83039082,
+    cartera:[
+      {rubro:'Remate Yeguas Abril 2026', val:77500000,  warn:false},
+      {rubro:'Remate 2026 — 1° Marzo',   val:534000000, warn:false},
+      {rubro:'Remate 2026 — 2° Junio',   val:216000000, warn:false},
+      {rubro:'Remate 2026 — 3° Sept.',   val:242000000, warn:false},
+      {rubro:'Ventas Particulares',       val:3900000,   warn:false},
+      {rubro:'Servicios',                 val:92600000,  warn:false},
+      {rubro:'Remates 2025',              val:218000000, warn:true},
+    ],
+    ratios:{solvencia:13.43, liquid:1.85, endeud:7.4, cobIVA:3.57, usdPos:94000, r2025pct:15.8}
+  },
+  {
+    id:'09/10', date:'9 Oct 2026', tc:1530,
+    activo:1868977535, pasivo:157703538, neta:1711273997,
+    disp:264159047, usd:96488, dispUsdArs:147628170,
+    reserva:65000000, ccss:36000000, iva:22000000, flujoMes:'Octubre',
+    provTotal:99703538, provA:34596442, provB:65107096,
+    cartera:[
+      {rubro:'Remate Yeguas Abril 2026', val:78248838,  warn:false},
+      {rubro:'Remate 2026 — 1° Marzo',   val:631374042, warn:false},
+      {rubro:'Remate 2026 — 2° Junio',   val:218229260, warn:false},
+      {rubro:'Remate 2026 — 3° Sept.',   val:290446020, warn:false},
+      {rubro:'Ventas Particulares',       val:7095607,   warn:false},
+      {rubro:'Servicios',                 val:0,           warn:false},
+      {rubro:'Remates 2025',             val:190122510,  warn:true},
+    ],
+    ratios:{solvencia:11.85, liquid:1.67, endeud:8.4, cobIVA:3.44, usdPos:96488, r2025pct:14.0}
+  },
+  {
+    id:'16/10', date:'16 Oct 2026', tc:1535,
+    activo:1733481034, pasivo:137555824, neta:1595925210,
+    disp:274677416, usd:129607, dispUsdArs:198946745,
+    reserva:65000000, ccss:35000000, iva:22000000, flujoMes:'Noviembre',
+    ccssPagados:true,
+    provTotal:137555824, provA:60642916, provB:76912908,
+    cartera:[
+      {rubro:'Remate Yeguas Abril 2026', val:77465903,  warn:false},
+      {rubro:'Remate 2026 — 1° Marzo',  val:534357442,  warn:false},
+      {rubro:'Remate 2026 — 2° Junio',  val:216589400,  warn:false},
+      {rubro:'Remate 2026 — 3° Sept.',  val:246029800,  warn:false},
+      {rubro:'Ventas Particulares',      val:3912542,    warn:false},
+      {rubro:'Servicios',                val:93481500,   warn:false},
+      {rubro:'Remates 2025',             val:224691761,  warn:true},
+    ],
+    ratios:{solvencia:12.60, liquid:2.00, endeud:7.9, cobIVA:4.82, usdPos:129607, r2025pct:14.1}
+  },
+];
+
+// ════════════════════════════════════════════════════════════════
+// STATE & CONFIG
+// ════════════════════════════════════════════════════════════════
+let WI = WDATA.length - 1;
+let charts = {};
+
+const C = {
+  green:'#3fb950', amber:'#d29922', red:'#f85149', blue:'#58a6ff',
+  teal:'#39c5cf', purple:'#bc8cff',
+  greenFill:'rgba(63,185,80,0.15)', ambFill:'rgba(210,153,34,0.15)',
+  redFill:'rgba(248,81,73,0.12)',   blueFill:'rgba(88,166,255,0.12)',
+  tealFill:'rgba(57,197,207,0.12)', purpFill:'rgba(188,140,255,0.12)',
+  grid:'rgba(45,55,72,0.6)', fg3:'#6e7681'
+};
+Chart.defaults.color = '#8b949e';
+Chart.defaults.font.family = "-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif";
+
+// ── Helpers ──────────────────────────────────────────────────
+const fmtM  = n => `$${Math.round(n/1e6)}M`;
+const fmtM1 = n => `$${(n/1e6).toFixed(1)}M`;
+const fmtB  = n => `$${(n/1e9).toFixed(3)}B`;
+const fmtN  = n => '$' + n.toLocaleString('es-AR');
+const fmtU  = n => 'USD ' + n.toLocaleString('es-AR');
+const arr   = (v,p) => v > p ? `▲ ${fmtM1(v-p)}` : v < p ? `▼ ${fmtM1(p-v)}` : '—';
+const arrU  = (v,p) => v > p ? `▲ USD ${(v-p).toLocaleString()}` : v < p ? `▼ USD ${(p-v).toLocaleString()}` : '—';
+const clsD  = (v,p) => v >= p ? 'up' : 'dn';
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function mkLine(id, labels, datasets, opts={}) {
+  destroyChart(id);
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  charts[id] = new Chart(ctx, {
+    type:'line', data:{labels, datasets},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{legend:{labels:{boxWidth:10, padding:14, font:{size:11}}}},
+      scales:{
+        x:{grid:{color:C.grid}, ticks:{font:{size:11}}},
+        y:{grid:{color:C.grid}, ticks:{font:{size:11}},
+           title:{display:!!opts.yLabel, text:opts.yLabel||'', font:{size:11}, color:C.fg3}},
+        ...(opts.y2 ? {y2:{position:'right', grid:{display:false}, ticks:{font:{size:11}},
+          title:{display:true, text:opts.y2||'', font:{size:11}, color:C.fg3}}} : {})
+      }
+    }
+  });
+}
+
+function ds(label, data, color, fill, dash, yID) {
+  return {
+    label, data, borderColor:color,
+    backgroundColor: fill || 'transparent',
+    tension:0.35, pointRadius:4, pointHoverRadius:6, borderWidth:2,
+    fill: fill ? 'origin' : false,
+    ...(dash ? {borderDash:dash} : {}),
+    ...(yID ? {yAxisID:yID} : {})
+  };
+}
+
+// ════════════════════════════════════════════════════════════════
+// WEEK BUTTONS
+// ════════════════════════════════════════════════════════════════
+function buildWeekBtns() {
+  const cont = document.getElementById('weekBtns');
+  cont.innerHTML = '';
+  WDATA.forEach((w,i) => {
+    const b = document.createElement('button');
+    b.className = 'wbtn' + (i===WI?' active':'');
+    b.textContent = w.id;
+    b.onclick = () => { WI=i; renderAll(); };
+    cont.appendChild(b);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// RENDER ALL
+// ════════════════════════════════════════════════════════════════
+function renderAll() {
+  buildWeekBtns();
+  const W = WDATA[WI], P = WI>0 ? WDATA[WI-1] : null;
+  document.getElementById('hdrDate').textContent = W.date;
+  document.getElementById('hdrTC').textContent   = `TC ARS/USD: ${W.tc.toLocaleString()} · Uso interno`;
+  renderResumen(W, P);
+  renderFlujo(W, P);
+  renderProveedores(W, P);
+  renderCarteraTab(W, P);
+  renderRatios(W, P);
+  document.getElementById('footerTxt').textContent =
+    `Haras Vacación · Posición Financiera · Semana ${W.id} · TC ARS/USD ${W.tc.toLocaleString()}`;
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB: RESUMEN
+// ════════════════════════════════════════════════════════════════
+function renderResumen(W, P) {
+  document.getElementById('ttlResumen').textContent = `Resumen Ejecutivo — Posición al ${W.date}`;
+  document.getElementById('ttlBalance').textContent = `Balance al ${W.date}`;
+
+  // holgura = disp - sueldos - ccss - iva - proveedores
+  const holgFinal  = W.disp - W.reserva - W.ccss - W.iva - W.provTotal;
+  const carteraTotal = W.cartera.reduce((s,i)=>s+i.val,0);
+
+  const kpis = [
+    { label:'Patrimonio Neto', val:fmtB(W.neta), cls:'',
+      delta:P?arr(W.neta,P.neta):null, dc:P?clsD(W.neta,P.neta):'up',
+      sub:P?`vs ${fmtB(P.neta)} sem ant`:'Patrimonio estimado' },
+    { label:'Disponibilidad',  val:fmtM1(W.disp), cls:'green',
+      delta:P?arr(W.disp,P.disp):null, dc:P?clsD(W.disp,P.disp):'up',
+      sub:`Holgura final: ${fmtM1(holgFinal)}` },
+    { label:'Bancos USD',      val:fmtU(W.usd), cls:'blue',
+      delta:P?arrU(W.usd,P.usd):null, dc:P?clsD(W.usd,P.usd):'up',
+      sub:`ARS ${fmtM1(W.dispUsdArs)} · TC ${W.tc.toLocaleString()}` },
+    { label:'CxP Proveedores', val:fmtM1(W.provTotal), cls:'amber',
+      delta:P?arr(P.provTotal,W.provTotal):null, dc:P?clsD(P.provTotal,W.provTotal):'up',
+      sub:`A: ${fmtM(W.provA)} · B: ${fmtM(W.provB)}` },
+  ];
+  document.getElementById('kpiGrid').innerHTML = kpis.map(k=>`
+    <div class="kpi">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-val ${k.cls}">${k.val}</div>
+      ${k.delta?`<div class="kpi-delta ${k.dc}">${k.delta}</div>`:''}
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+
+  // Balance table
+  const carteraNoWarn = W.cartera.filter(x=>!x.warn).reduce((s,i)=>s+i.val,0);
+  const carteraWarn   = W.cartera.filter(x=>x.warn).reduce((s,i)=>s+i.val,0);
+  document.getElementById('balanceTable').innerHTML = `
+    <thead><tr><th>Componente</th><th>ARS M</th><th>USD K</th></tr></thead>
+    <tbody>
+      <tr class="highlight"><td>ACTIVO TOTAL</td><td class="pos">${fmtM(W.activo)}</td><td>${Math.round(W.activo/W.tc/1000)}K</td></tr>
+      <tr><td class="ind">Disponibilidades</td><td>${fmtM(W.disp)}</td><td>${Math.round(W.disp/W.tc/1000)}K</td></tr>
+      <tr><td class="ind">Bancos USD (ARS)</td><td>${fmtM(W.dispUsdArs)}</td><td>${Math.round(W.usd/1000)}K</td></tr>
+      <tr><td class="ind">Cartera vigente</td><td>${fmtM(carteraNoWarn)}</td><td>${Math.round(carteraNoWarn/W.tc/1000)}K</td></tr>
+      <tr><td class="ind">Remates 2025 (+90d)</td><td class="warn">${fmtM(carteraWarn)}</td><td>${Math.round(carteraWarn/W.tc/1000)}K</td></tr>
+      <tr class="subtotal"><td>PASIVO TOTAL</td><td class="neg">(${fmtM(W.pasivo)})</td><td>(${Math.round(W.pasivo/W.tc/1000)}K)</td></tr>
+      <tr><td class="ind">Proveedores A</td><td class="neg">(${fmtM(W.provA)})</td><td>—</td></tr>
+      <tr><td class="ind">Proveedores B</td><td class="neg">(${fmtM(W.provB)})</td><td>—</td></tr>
+      ${W.ccssPagados?'':`<tr><td class="ind">CCSS pdte.</td><td class="neg">(${fmtM(W.ccss)})</td><td>—</td></tr>
+        <tr><td class="ind">IVA pdte.</td><td class="neg">(${fmtM(W.iva)})</td><td>—</td></tr>`}
+      <tr class="total"><td>PATRIMONIO NETO</td><td class="pos">${fmtM(W.neta)}</td><td>${Math.round(W.neta/W.tc/1000)}K</td></tr>
+    </tbody>`;
+
+  // Evolution charts
+  const slice = WDATA.slice(0, WI+1), labels = slice.map(x=>x.id);
+  mkLine('chartNeta', labels, [
+    ds('Activo',  slice.map(x=>Math.round(x.activo/1e6)),  C.blue,  C.blueFill),
+    ds('Neta',    slice.map(x=>Math.round(x.neta/1e6)),    C.green, C.greenFill),
+    ds('Pasivo',  slice.map(x=>Math.round(x.pasivo/1e6)),  C.red,   C.redFill),
+  ], {yLabel:'ARS M'});
+  mkLine('chartDisp', labels, [
+    ds('Disp. ARS',      slice.map(x=>Math.round(x.disp/1e6)),       C.green),
+    ds('Bancos USD (ARS)',slice.map(x=>Math.round(x.dispUsdArs/1e6)), C.teal),
+  ], {yLabel:'ARS M'});
+  const carteraTot  = slice.map(x=>Math.round(x.cartera.reduce((s,i)=>s+i.val,0)/1e6));
+  const cartera2025 = slice.map(x=>Math.round((x.cartera.find(i=>i.warn)?.val||0)/1e6));
+  mkLine('chartCartera', labels, [
+    ds('Cartera total', carteraTot,  C.blue,  C.blueFill),
+    ds('Remates 2025',  cartera2025, C.amber, C.ambFill),
+  ], {yLabel:'ARS M'});
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB: FLUJO  —  Disp → Sueldos → CCSS → IVA → Proveedores → Holgura
+// ════════════════════════════════════════════════════════════════
+function renderFlujo(W, P) {
+  document.getElementById('ttlFlujo').textContent = `Flujo de Caja — Semana ${W.date}`;
+  document.getElementById('ttlDetComp').textContent = `Detalle Compromisos ${W.flujoMes}`;
+
+  const postSueldos = W.disp - W.reserva;
+  const postCCSS    = postSueldos - W.ccss;
+  const postIVA     = postCCSS - W.iva;
+  const holgFinal   = postIVA - W.provTotal;
+  const totalComp   = W.reserva + W.ccss + W.iva + W.provTotal;
+  const pctProv     = W.disp > 0 ? (W.provTotal/W.disp*100).toFixed(1) : 0;
+
+  const arrow = () => `<div class="flujo-arrow">↓</div>`;
+  let rows = '';
+
+  if (W.ccssPagados) {
+    rows += `<div class="flujo-row notice">
+      <span class="notice-text">⚠ CCSS e IVA octubre YA PAGADOS. Flujo planifica compromisos de ${W.flujoMes}.</span>
+    </div>`;
+  }
+
+  rows += `
+    <div class="flujo-row start">
+      <div class="flujo-icon">🏦</div>
+      <div class="flujo-label"><div class="flujo-name">Disponibilidades</div><div class="flujo-note">Al cierre de semana</div></div>
+      <div class="flujo-amt"><div class="flujo-ars">${fmtM1(W.disp)}</div><div class="flujo-usd">${fmtU(Math.round(W.disp/W.tc))}</div></div>
+    </div>${arrow()}
+    <div class="flujo-row reserve">
+      <div class="flujo-icon">💰</div>
+      <div class="flujo-label"><div class="flujo-name">(−) Sueldos ${W.flujoMes}</div><div class="flujo-note">Pago 1ª semana · reserva acumulando</div></div>
+      <div class="flujo-amt"><div class="flujo-ars">(${fmtM1(W.reserva)})</div></div>
+    </div>${arrow()}
+    <div class="flujo-row deduct">
+      <div class="flujo-icon">📋</div>
+      <div class="flujo-label"><div class="flujo-name">(−) CCSS ${W.flujoMes}</div><div class="flujo-note">${W.ccssPagados?'Estimado a pagar':'Registrado en pasivo'}</div></div>
+      <div class="flujo-amt"><div class="flujo-ars">(${fmtM1(W.ccss)})</div></div>
+    </div>${arrow()}
+    <div class="flujo-row deduct">
+      <div class="flujo-icon">🧾</div>
+      <div class="flujo-label"><div class="flujo-name">(−) IVA ${W.flujoMes}</div><div class="flujo-note">${W.ccssPagados?'Estimado a pagar':'Registrado en pasivo'}</div></div>
+      <div class="flujo-amt"><div class="flujo-ars">(${fmtM1(W.iva)})</div></div>
+    </div>${arrow()}
+    <div class="flujo-row prov">
+      <div class="flujo-icon">🏪</div>
+      <div class="flujo-label"><div class="flujo-name">(−) Proveedores CxP</div><div class="flujo-note">${pctProv}% de disponibilidad · A: ${fmtM(W.provA)} + B: ${fmtM(W.provB)}</div></div>
+      <div class="flujo-amt"><div class="flujo-ars">(${fmtM1(W.provTotal)})</div></div>
+    </div>${arrow()}
+    <div class="flujo-row result">
+      <div class="flujo-icon">🎯</div>
+      <div class="flujo-label"><div class="flujo-name">HOLGURA FINAL</div><div class="flujo-note">Libre post-todos los compromisos</div></div>
+      <div class="flujo-amt"><div class="flujo-ars">${fmtM1(holgFinal)}</div><div class="flujo-usd">${fmtU(Math.round(holgFinal/W.tc))}</div></div>
+    </div>`;
+  document.getElementById('flujoRows').innerHTML = rows;
+
+  // Compromisos table
+  document.getElementById('compTable').innerHTML = `
+    <thead><tr><th>Concepto</th><th>Tipo</th><th>ARS M</th><th>% Disp.</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Sueldos ${W.flujoMes}</td><td><span class="badge badge-amber">Reserva</span></td>
+        <td class="neg">(${fmtM1(W.reserva)})</td>
+        <td>${(W.reserva/W.disp*100).toFixed(1)}%</td>
+        <td><span class="badge badge-blue">Acumulando</span></td></tr>
+      <tr><td>CCSS ${W.flujoMes}</td><td><span class="badge ${W.ccssPagados?'badge-blue':'badge-red'}">${W.ccssPagados?'Planif.':'Pasivo'}</span></td>
+        <td class="neg">(${fmtM1(W.ccss)})</td>
+        <td>${(W.ccss/W.disp*100).toFixed(1)}%</td>
+        <td><span class="badge ${W.ccssPagados?'badge-blue':'badge-amber'}">${W.ccssPagados?'A prever':'Pdte. pago'}</span></td></tr>
+      <tr><td>IVA ${W.flujoMes}</td><td><span class="badge ${W.ccssPagados?'badge-blue':'badge-red'}">${W.ccssPagados?'Planif.':'Pasivo'}</span></td>
+        <td class="neg">(${fmtM1(W.iva)})</td>
+        <td>${(W.iva/W.disp*100).toFixed(1)}%</td>
+        <td><span class="badge ${W.ccssPagados?'badge-blue':'badge-amber'}">${W.ccssPagados?'A prever':'Pdte. pago'}</span></td></tr>
+      <tr><td>Proveedores A</td><td><span class="badge badge-purple">CxP</span></td>
+        <td class="neg">(${fmtM(W.provA)})</td>
+        <td>${(W.provA/W.disp*100).toFixed(1)}%</td>
+        <td><span class="badge badge-amber">Pdte. pago</span></td></tr>
+      <tr><td>Proveedores B</td><td><span class="badge badge-purple">CxP</span></td>
+        <td class="neg">(${fmtM(W.provB)})</td>
+        <td>${(W.provB/W.disp*100).toFixed(1)}%</td>
+        <td><span class="badge badge-amber">Pdte. pago</span></td></tr>
+      <tr class="subtotal"><td>TOTAL COMPROMISOS</td><td></td>
+        <td class="neg">(${fmtM1(totalComp)})</td>
+        <td>${(totalComp/W.disp*100).toFixed(1)}%</td><td></td></tr>
+      <tr class="total"><td>HOLGURA FINAL</td><td></td>
+        <td class="${holgFinal>=0?'pos':'neg'}">${fmtM1(holgFinal)}</td>
+        <td>${(holgFinal/W.disp*100).toFixed(1)}%</td>
+        <td><span class="badge ${holgFinal>=0?'badge-green':'badge-red'}">${holgFinal>=0?'OK':'DÉFICIT'}</span></td></tr>
+    </tbody>`;
+
+  // Flujo chart — stacked bar
+  const slice = WDATA.slice(0, WI+1), labels = slice.map(x=>x.id);
+  destroyChart('chartFlujo');
+  const ctx = document.getElementById('chartFlujo');
+  if (ctx) {
+    charts['chartFlujo'] = new Chart(ctx, {
+      type:'bar', data:{labels, datasets:[
+        {label:'Sueldos',    data:slice.map(x=>Math.round(x.reserva/1e6)),   backgroundColor:'rgba(210,153,34,0.70)', borderRadius:3, order:1},
+        {label:'CCSS',       data:slice.map(x=>Math.round(x.ccss/1e6)),      backgroundColor:'rgba(248,81,73,0.65)', borderRadius:3, order:1},
+        {label:'IVA',        data:slice.map(x=>Math.round(x.iva/1e6)),       backgroundColor:'rgba(248,81,73,0.45)', borderRadius:3, order:1},
+        {label:'Proveedores',data:slice.map(x=>Math.round(x.provTotal/1e6)), backgroundColor:'rgba(188,140,255,0.65)', borderRadius:3, order:1},
+        {label:'Holgura Final', type:'line',
+         data:slice.map(x=>Math.round((x.disp-x.reserva-x.ccss-x.iva-x.provTotal)/1e6)),
+         borderColor:C.teal, backgroundColor:'transparent', tension:0.35, pointRadius:5, borderWidth:2, borderDash:[4,3], order:0},
+        {label:'Disponibilidad', type:'line',
+         data:slice.map(x=>Math.round(x.disp/1e6)),
+         borderColor:C.green, backgroundColor:'transparent', tension:0.35, pointRadius:4, borderWidth:2, order:0},
+      ]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index', intersect:false},
+        plugins:{legend:{labels:{boxWidth:10, padding:12, font:{size:11}}}},
+        scales:{
+          x:{grid:{color:C.grid}, ticks:{font:{size:11}}, stacked:true},
+          y:{grid:{color:C.grid}, ticks:{font:{size:11}}, stacked:false,
+             title:{display:true, text:'ARS M', font:{size:11}, color:C.fg3}}
+        }
+      }
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB: PROVEEDORES
+// ════════════════════════════════════════════════════════════════
+function renderProveedores(W, P) {
+  document.getElementById('ttlProv').textContent = `Cuentas por Pagar — Proveedores al ${W.date}`;
+  document.getElementById('ttlProvDet').textContent = `Desglose al ${W.date}`;
+
+  const varTotal = P ? W.provTotal - P.provTotal : 0;
+  const varA     = P ? W.provA - P.provA : 0;
+  const varB     = P ? W.provB - P.provB : 0;
+  const pctA     = W.provTotal > 0 ? (W.provA/W.provTotal*100).toFixed(1) : 0;
+  const pctB     = W.provTotal > 0 ? (W.provB/W.provTotal*100).toFixed(1) : 0;
+  const pctDispo = W.disp > 0 ? (W.provTotal/W.disp*100).toFixed(1) : 0;
+
+  // KPIs
+  document.getElementById('provKpis').innerHTML = [
+    { label:'CxP Total',       val:fmtN(W.provTotal), cls:'amber',
+      delta:P?arr(P.provTotal,W.provTotal):null, dc:P?clsD(P.provTotal,W.provTotal):'up',
+      sub:`${pctDispo}% de la disponibilidad` },
+    { label:'Proveedores A',   val:fmtN(W.provA), cls:'',
+      delta:P?arr(P.provA,W.provA):null, dc:P?clsD(P.provA,W.provA):'up',
+      sub:`${pctA}% del total CxP` },
+    { label:'Proveedores B',   val:fmtN(W.provB), cls:'',
+      delta:P?arr(P.provB,W.provB):null, dc:P?clsD(P.provB,W.provB):'up',
+      sub:`${pctB}% del total CxP` },
+    { label:'Disp. neta prov.',val:fmtM1(W.disp - W.provTotal), cls: W.disp>W.provTotal?'green':'red',
+      delta:null, dc:'up',
+      sub:`Disp. ${fmtM1(W.disp)} − CxP ${fmtM1(W.provTotal)}` },
+  ].map(k=>`<div class="kpi">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-val ${k.cls}">${k.val}</div>
+    ${k.delta?`<div class="kpi-delta ${k.dc}">${k.delta}</div>`:''}
+    <div class="kpi-sub">${k.sub}</div>
+  </div>`).join('');
+
+  // Detail table
+  document.getElementById('provDetTable').innerHTML = `
+    <thead><tr><th>Categoría</th><th>Importe ARS</th><th>%</th></tr></thead>
+    <tbody>
+      <tr class="highlight"><td>CxP Total</td><td class="neg">${fmtN(W.provTotal)}</td><td>100%</td></tr>
+      <tr><td class="ind">Proveedores A</td><td class="neg">${fmtN(W.provA)}</td><td>${pctA}%</td></tr>
+      <tr><td class="ind">Proveedores B</td><td class="neg">${fmtN(W.provB)}</td><td>${pctB}%</td></tr>
+      <tr class="subtotal"><td>Variación sem. ant.</td>
+        <td class="${varTotal<=0?'pos':'neg'}">${varTotal>0?'+':''}${fmtN(varTotal)}</td>
+        <td class="${varTotal<=0?'pos':'neg'}">${P?(varTotal/P.provTotal*100).toFixed(1)+'%':'—'}</td></tr>
+      <tr class="total"><td>Cobertura disponible</td><td class="${W.disp>=W.provTotal?'pos':'neg'}">${fmtN(W.disp)}</td><td>${(W.disp/W.provTotal*100).toFixed(0)}%</td></tr>
+    </tbody>`;
+
+  // Historical table
+  const headers = WDATA.map(x=>`<th>${x.id}</th>`).join('');
+  const rowTotal = WDATA.map(x=>`<td class="neg">${fmtN(x.provTotal)}</td>`).join('');
+  const rowA     = WDATA.map(x=>`<td>${fmtN(x.provA)}</td>`).join('');
+  const rowB     = WDATA.map(x=>`<td>${fmtN(x.provB)}</td>`).join('');
+  const rowVar   = WDATA.map((x,i)=>{
+    if (i===0) return '<td style="color:var(--fg3)">—</td>';
+    const v = x.provTotal - WDATA[i-1].provTotal;
+    return `<td class="${v<=0?'pos':'neg'}">${v>0?'+':''}${fmtN(v)}</td>`;
+  }).join('');
+  document.getElementById('provHistTable').innerHTML = `
+    <thead><tr><th>Concepto</th>${headers}</tr></thead>
+    <tbody>
+      <tr class="highlight"><td>CxP Total</td>${rowTotal}</tr>
+      <tr><td class="ind">Proveedores A</td>${rowA}</tr>
+      <tr><td class="ind">Proveedores B</td>${rowB}</tr>
+      <tr class="subtotal"><td>Variación semanal</td>${rowVar}</tr>
+    </tbody>`;
+
+  // Chart
+  const labels = WDATA.map(x=>x.id);
+  destroyChart('chartProv');
+  const ctx = document.getElementById('chartProv');
+  if (ctx) {
+    charts['chartProv'] = new Chart(ctx, {
+      type:'bar', data:{labels, datasets:[
+        {label:'Proveedores A', data:WDATA.map(x=>Math.round(x.provA/1e6)),
+         backgroundColor:'rgba(88,166,255,0.70)', borderRadius:4, order:1},
+        {label:'Proveedores B', data:WDATA.map(x=>Math.round(x.provB/1e6)),
+         backgroundColor:'rgba(188,140,255,0.65)', borderRadius:4, order:1},
+        {label:'CxP Total', type:'line',
+         data:WDATA.map(x=>Math.round(x.provTotal/1e6)),
+         borderColor:C.amber, backgroundColor:'transparent',
+         tension:0.35, pointRadius:5, borderWidth:2, order:0},
+        {label:'Disponibilidad', type:'line',
+         data:WDATA.map(x=>Math.round(x.disp/1e6)),
+         borderColor:C.green, backgroundColor:'transparent',
+         tension:0.35, pointRadius:4, borderWidth:2, borderDash:[4,3], order:0},
+      ]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index', intersect:false},
+        plugins:{legend:{labels:{boxWidth:10, padding:12, font:{size:11}}}},
+        scales:{
+          x:{grid:{color:C.grid}, ticks:{font:{size:11}}, stacked:true},
+          y:{grid:{color:C.grid}, ticks:{font:{size:11}}, stacked:false,
+             title:{display:true, text:'ARS M', font:{size:11}, color:C.fg3}}
+        }
+      }
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB: CARTERA
+// ════════════════════════════════════════════════════════════════
+function renderCarteraTab(W, P) {
+  document.getElementById('ttlCartera').textContent = `Cuotas & Cartera — Al ${W.date}`;
+
+  const carteraTotal  = W.cartera.reduce((s,i)=>s+i.val,0);
+  const cartera2025   = W.cartera.find(x=>x.warn)?.val || 0;
+  const carteraVig    = W.cartera.filter(x=>!x.warn).reduce((s,i)=>s+i.val,0);
+  const r2026_1       = W.cartera.find(x=>x.rubro.includes('1° Marzo'))?.val||0;
+  const r2026_2       = W.cartera.find(x=>x.rubro.includes('2° Junio'))?.val||0;
+  const r2026_3       = W.cartera.find(x=>x.rubro.includes('3° Sept'))?.val||0;
+  const pct2025       = carteraTotal>0?(cartera2025/carteraTotal*100).toFixed(1):0;
+
+  document.getElementById('carteraKpis').innerHTML = [
+    {label:'Cartera Vigente',    val:fmtB(carteraVig),    cls:'green', sub:'Sin alertas'},
+    {label:'Remates 2026 Total', val:fmtM(r2026_1+r2026_2+r2026_3), cls:'blue', sub:'3 remates activos'},
+    {label:'Remates 2025',       val:fmtM(cartera2025),   cls:'amber', sub:`${pct2025}% de cartera · Gestión cobro`},
+    {label:'Total Cartera',      val:fmtB(carteraTotal),  cls:'',      sub:'Cobros programados'},
+  ].map(k=>`<div class="kpi">
+    <div class="kpi-label">${k.label}</div>
+    <div class="kpi-val ${k.cls}">${k.val}</div>
+    <div class="kpi-sub">${k.sub}</div>
+  </div>`).join('');
+
+  document.getElementById('carteraTable').innerHTML = `
+    <thead><tr><th>Rubro</th><th>Importe ARS</th><th>%</th><th>Dist.</th><th>Estado</th></tr></thead>
+    <tbody>
+      ${W.cartera.map(item=>{
+        const pct = carteraTotal>0?(item.val/carteraTotal*100).toFixed(1):0;
+        const barW = carteraTotal>0?Math.round(item.val/carteraTotal*100):0;
+        const barColor = item.warn?C.amber:item.val>200e6?C.blue:C.green;
+        return `<tr>
+          <td class="${item.warn?'warn':''}">${item.rubro}${item.warn?' ⚠':''}</td>
+          <td>${item.val>0?fmtN(item.val):'—'}</td>
+          <td>${item.val>0?pct+'%':'—'}</td>
+          <td style="width:100px"><div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${barW}%;background:${barColor}"></div></div></td>
+          <td>${item.warn?'<span class="badge badge-amber">Gestión cobro</span>':item.val===0?'<span style="color:var(--fg3);font-size:11px">Sin saldo</span>':''}</td>
+        </tr>`;
+      }).join('')}
+      <tr class="total"><td>TOTAL CARTERA</td><td>${fmtN(carteraTotal)}</td><td>100%</td><td></td><td><span class="badge badge-green">Programado</span></td></tr>
+    </tbody>`;
+
+  const slice  = WDATA.slice(0, WI+1), labels = slice.map(x=>x.id);
+  mkLine('chartCartera2', labels, [
+    ds('R2026-1° Marzo', slice.map(x=>Math.round((x.cartera.find(i=>i.rubro.includes('1° Marzo'))?.val||0)/1e6)), C.blue,  C.blueFill),
+    ds('R2026-2° Junio', slice.map(x=>Math.round((x.cartera.find(i=>i.rubro.includes('2° Junio'))?.val||0)/1e6)), C.teal,  C.tealFill),
+    ds('R2026-3° Sept.', slice.map(x=>Math.round((x.cartera.find(i=>i.rubro.includes('3° Sept'))?.val||0)/1e6)),  C.green, C.greenFill),
+    ds('Remates 2025',   slice.map(x=>Math.round((x.cartera.find(i=>i.warn)?.val||0)/1e6)),                       C.amber, C.ambFill, [4,3]),
+  ], {yLabel:'ARS M'});
+
+  destroyChart('chartPie');
+  const pieCtx = document.getElementById('chartPie');
+  if (pieCtx) {
+    const items = W.cartera.filter(x=>x.val>0);
+    charts['chartPie'] = new Chart(pieCtx, {
+      type:'doughnut',
+      data:{
+        labels:items.map(x=>x.rubro),
+        datasets:[{data:items.map(x=>x.val),
+          backgroundColor:items.map(x=>x.warn?C.amber:C.blue),
+          borderWidth:2, borderColor:'#161b22', hoverOffset:6}]
+      },
+      options:{responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{position:'right', labels:{boxWidth:10, padding:8, font:{size:10}}}}}
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB: RATIOS
+// ════════════════════════════════════════════════════════════════
+function renderRatios(W, P) {
+  document.getElementById('ttlRatios').textContent = `Ratios Financieros & Alertas — ${W.date}`;
+  const R = W.ratios;
+
+  // holgura final con proveedores
+  const holgFinal = W.disp - W.reserva - W.ccss - W.iva - W.provTotal;
+  const holgPct   = (holgFinal/W.disp*100).toFixed(1);
+
+  const semaforo = [
+    {label:'Solvencia (Activo/Pasivo)',     val:`${R.solvencia.toFixed(2)}x`, thresh:'mín 1.2x',   ok:R.solvencia>=1.2, warn:false},
+    {label:'Endeudamiento (Pasivo/Activo)', val:`${R.endeud.toFixed(1)}%`,   thresh:'máx 80%',    ok:R.endeud<=80,     warn:false},
+    {label:'Liquidez (Disp/Pasivo)',        val:`${R.liquid.toFixed(2)}x`,   thresh:'mín 0.50x',  ok:R.liquid>=0.5,    warn:false},
+    {label:'Liquidez USD (Bancos)',         val:`USD ${Math.round(R.usdPos/1000)}K`, thresh:'mín USD 100K', ok:R.usdPos>=100000, warn:R.usdPos<150000},
+    {label:'Remates 2025 / Cartera',        val:`${R.r2025pct.toFixed(1)}%`, thresh:'máx 10%',    ok:R.r2025pct<10,   warn:R.r2025pct<20},
+    {label:'Cobertura IVA (Disp/IVA)',      val:`${R.cobIVA.toFixed(2)}x`,  thresh:'mín 3.0x',   ok:R.cobIVA>=3.0,   warn:false},
+    {label:'Holgura post-compromisos',      val:`${holgPct}% disp.`,        thresh:'mín 20%',    ok:parseFloat(holgPct)>=20, warn:parseFloat(holgPct)<30},
+    {label:'CxP / Disponibilidad',          val:`${(W.provTotal/W.disp*100).toFixed(1)}%`, thresh:'máx 70%', ok:W.provTotal/W.disp<0.7, warn:W.provTotal/W.disp<0.85},
+  ];
+
+  document.getElementById('semaforoRows').innerHTML = semaforo.map(s=>{
+    const dot = s.ok?'dot-green':(s.warn?'dot-amber':'dot-red');
+    const col = s.ok?C.green:(s.warn?C.amber:C.red);
+    return `<div class="alert-row">
+      <div class="alert-dot ${dot}"></div>
+      <div class="alert-label">${s.label}</div>
+      <div><span class="alert-val" style="color:${col}">${s.val}</span>
+      <span class="alert-threshold">${s.thresh}</span></div>
+    </div>`;
+  }).join('');
+
+  // Ratios table
+  document.getElementById('ratiosTable').innerHTML = `
+    <thead><tr><th>Ratio</th><th>Umbral</th><th>${W.id}</th><th>Status</th></tr></thead>
+    <tbody>${semaforo.map(s=>{
+      const bg = s.ok?'badge-green':(s.warn?'badge-amber':'badge-red');
+      const lbl = s.ok?'OK':(s.warn?'Vigilar':'Alerta');
+      return `<tr>
+        <td>${s.label}</td>
+        <td style="color:var(--fg3);text-align:center">${s.thresh}</td>
+        <td class="${s.ok?'pos':s.warn?'warn':'neg'}">${s.val}</td>
+        <td><span class="badge ${bg}">${lbl}</span></td>
+      </tr>`;
+    }).join('')}</tbody>`;
+
+  // Ratios chart
+  const slice = WDATA.slice(0, WI+1), labels = slice.map(x=>x.id);
+  destroyChart('chartRatios');
+  const ctx = document.getElementById('chartRatios');
+  if (ctx) {
+    charts['chartRatios'] = new Chart(ctx, {
+      type:'line', data:{labels, datasets:[
+        {label:'Solvencia (x)', yAxisID:'y',
+         data:slice.map(x=>x.ratios.solvencia), borderColor:C.green, backgroundColor:C.greenFill,
+         tension:0.35, pointRadius:4, borderWidth:2, fill:'origin'},
+        {label:'Liquidez (x)', yAxisID:'y',
+         data:slice.map(x=>x.ratios.liquid), borderColor:C.blue, backgroundColor:'transparent',
+         tension:0.35, pointRadius:4, borderWidth:2},
+        {label:'Rem2025 (%)', yAxisID:'y2',
+         data:slice.map(x=>x.ratios.r2025pct), borderColor:C.amber, backgroundColor:'transparent',
+         tension:0.35, pointRadius:4, borderWidth:2, borderDash:[4,3]},
+        {label:'CxP/Disp (%)', yAxisID:'y2',
+         data:slice.map(x=>(x.provTotal/x.disp*100).toFixed(1)), borderColor:C.purple, backgroundColor:'transparent',
+         tension:0.35, pointRadius:4, borderWidth:2, borderDash:[2,4]},
+      ]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{mode:'index', intersect:false},
+        plugins:{legend:{labels:{boxWidth:10, padding:12, font:{size:11}}}},
+        scales:{
+          x:{grid:{color:C.grid}, ticks:{font:{size:11}}},
+          y:{grid:{color:C.grid}, ticks:{font:{size:11}},
+             title:{display:true, text:'Ratio (x)', font:{size:11}, color:C.fg3}},
+          y2:{position:'right', grid:{display:false}, ticks:{font:{size:11}},
+              title:{display:true, text:'Porcentaje %', font:{size:11}, color:C.fg3}}
+        }
+      }
+    });
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ════════════════════════════════════════════════════════════════
+const TABS = ['resumen','flujo','proveedores','cartera','ratios'];
+function showTab(name) {
+  TABS.forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name?'':'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach((el,i) => {
+    el.classList.toggle('active', TABS[i]===name);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderAll);
+} else {
+  renderAll();
+}
+window.addEventListener('load', function() {
+  if (!document.querySelector('.wbtn')) renderAll();
+});
+</script>
+</body>
+</html>
